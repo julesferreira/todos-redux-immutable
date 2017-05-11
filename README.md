@@ -109,17 +109,45 @@ we made two notable changes in this file:
 
 since `visibilityFilter` only deals in strings, we'll leave as is. on to `todos`!
 
+hmmmmmm, so the `todos` reducer takes the array of todos as state. any actions involving an element of that array is passed to the `todo` reducer. this nested reducer takes an individual todo object as state. now that we're converting our arrays and objects to Lists and Records, we'll need to update `todos` to work with Lists, and `todo` to work with Records.
+
+we'll need to update each action to use the new data structures. but for now, let's focus on the `'TOGGLE_TODO'` type
+
 ```js
 // reducers/todos.js
 
-// individual todos stored as Record
+// individual todos stored as Records
 const TodoRecord = Record({
 	id: null,
 	text: '',
 	completed: false
 })
+
+// reduces `todos` List from root reducer
+const todos = (state, action) => {
+	switch (action.type) {
+		case 'TOGGLE_TODO':
+			return state.map(t =>
+				todo(t, action)
+			)
+		...
+
+// nested reducer gets `TodoRecord` as state from `todos` (parent reducer)
+const todo = (state, action) => {
+	switch (action.type) {
+		case 'TOGGLE_TODO':
+			if (state.id !== action.id) {
+				// not the todo you're looking for..
+				return state
+			}
+			return state.set('completed', !state.completed)
+		...
 ```
 
+three items of note:
+1. `TodoRecord` defines the structure of any todo item
+2. the toggle reduction for `todos` remains unchanged (the List api is largely a superset of Array)
+3. in the `todo` reducer, we use List's `set` function to get a duplicate `TodoRecord` with a negated `completed` member (instead of building a new object by hand)
 
 
 

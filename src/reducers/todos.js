@@ -1,7 +1,7 @@
 // for immutable
 import { Record } from 'immutable'
 
-// individual todos stored as Record
+// individual todos stored as Records
 const TodoRecord = Record({
 	id: null,
 	text: '',
