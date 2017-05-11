@@ -1,3 +1,37 @@
+# using Immutable.js to optimize react/redux applications
+
+## phase one: eliminate wasted renders
+
+let's start with some performance profiling.
+
+```js
+import Perf from 'react-addons-perf'
+
+window.benchmark = (count = 100) => {
+	Perf.start()
+	for (let i = 0; i < count; i++) {
+		store.dispatch(actions.addTodo('test'))
+	}
+	for (let i = 0; i < count; i += 2) {
+		store.dispatch(actions.toggleTodo(i))
+	}
+	store.dispatch(actions.setVisibilityFilter('SHOW_ACTIVE'))
+	store.dispatch(actions.setVisibilityFilter('SHOW_COMPLETED'))
+	store.dispatch(actions.setVisibilityFilter('SHOW_ALL'))
+	Perf.stop()
+	Perf.printWasted()
+}
+```
+
+(index) | Owner > Component | Inclusive wasted time (ms) | Instance count | Render count
+--- | --- | --- | --- | ---
+0 | "TodoList > Todo" | 61.38 | 150 | 10000
+1 | "Footer > Connect(Link)" | 6.6 | 3 | 453
+
+after creating 100 todos, toggling half of them, and then clicking through the filter options, 
+
+---
+
 # Redux Todos Example
 
 This project template was built with [Create React App](https://github.com/facebookincubator/create-react-app), which provides a simple way to start React projects with no build configuration needed.
