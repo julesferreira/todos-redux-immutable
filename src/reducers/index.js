@@ -1,7 +1,9 @@
 import todos from './todos'
 import visibilityFilter from './visibilityFilter'
 
-// for immutable
+// redux `combineReducers` treats state as plain js objects. the drop-in
+// replacement from _redux-immutable_ is aware of the immutable api, and able
+// to correctly iterate over these structures
 import { combineReducers } from 'redux-immutable'
 import { Record, List } from 'immutable'
 

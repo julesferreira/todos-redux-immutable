@@ -1,8 +1,12 @@
 # using Immutable.js to optimize react/redux applications
 
+react is _le awesome_ in conjuction with a flux pattern (a la redux). let's make it _le awesomer_ (read: silly fast, even with large datasets and rapid changes).
+
+we'll take the basic todos example from redux and look for easy optimizations with Immutable.js
+
 ## phase one: eliminate wasted renders
 
-let's start with some performance profiling.
+let's create a baseline with some performance profiling. we'll create some todos, toggle half of them, and then click through the filter options
 
 ```js
 import Perf from 'react-addons-perf'
@@ -23,12 +27,85 @@ window.benchmark = (count = 100) => {
 }
 ```
 
+### `benchmark(100)`
+
 (index) | Owner > Component | Inclusive wasted time (ms) | Instance count | Render count
 --- | --- | --- | --- | ---
 0 | "TodoList > Todo" | 61.38 | 150 | 10000
 1 | "Footer > Connect(Link)" | 6.6 | 3 | 453
 
-after creating 100 todos, toggling half of them, and then clicking through the filter options, 
+at a cound of **100** we've called `render` **10,453** more times than was needed.
+
+at **1,000** todos, that's.. a browser crash. **200**? **40,903** unproductive renders :o
+
+### convert state object into immutable structures
+
+so our current state has a shape like
+
+```js
+{
+	todos: [
+		{
+			id: int,
+			text: string,
+			completed: bool
+		},
+		...
+	],
+	visibilityFilter: string
+}
+```
+
+we'll be converting our objects into Records and arrays into Lists
+
+```js
+Record (
+	todos: List(
+		Record(
+			id: int,
+			text: string,
+			completed: bool
+		),
+		...
+	),
+	visibilityFilter: string
+)
+```
+
+## updating reducers
+
+since our state is created and updated in the reducers we'll start there with our immutable conversion
+
+```js
+// reducers/index.js
+
+// redux `combineReducers` treats state as plain js objects. the drop-in
+// replacement from _redux-immutable_ is aware of the immutable api, and able
+// to correctly iterate over these structures
+import { combineReducers } from 'redux-immutable'
+import { Record, List } from 'immutable'
+
+// state stored as immutable Record composed of List and string
+const InitialState = Record({
+	todos: List(),
+	visibilityFilter: 'SHOW_ALL'
+})
+
+// root reducer
+const todoApp = combineReducers({
+	todos,
+	visibilityFilter
+},
+	// pass initial state to root reducer
+	InitialState
+)
+```
+
+
+
+
+
+
 
 ---
 
