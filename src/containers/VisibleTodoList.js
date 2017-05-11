@@ -18,6 +18,13 @@ const getVisibleTodos = (todos, filter) => {
 const mapStateToProps = (state) => ({
 	todos: getVisibleTodos(state.todos, state.visibilityFilter)
 })
+// const mapStateToProps = (state) => { 
+// 	console.log(getVisibleTodos(state.todos, state.visibilityFilter));
+	
+// 	return ({
+// 	todos: getVisibleTodos(state.todos, state.visibilityFilter)
+// 	})
+// }
 
 const mapDispatchToProps = {
 	onTodoClick: toggleTodo
@@ -25,7 +32,18 @@ const mapDispatchToProps = {
 
 const VisibleTodoList = connect(
 	mapStateToProps,
-	mapDispatchToProps
+	mapDispatchToProps,
+	null,
+	{
+		// only call `mapStateToProps` if `visibilityFilter` has changed
+		// areOwnPropsEqual: (prev, next) => {
+		// 	return true
+		// },
+		// areStatePropsEqual: (prev, next) => {
+		// 	console.log(prev.todos, next.todos);
+		// 	return prev.todos === next.todos
+		// }
+	}
 )(TodoList)
 
 export default VisibleTodoList

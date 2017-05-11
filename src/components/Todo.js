@@ -1,4 +1,5 @@
 import React from 'react'
+import { onlyUpdateForKeys } from 'recompose'
 
 const Todo = ({ onClick, todo }) => (
 	<li
@@ -11,4 +12,5 @@ const Todo = ({ onClick, todo }) => (
 	</li>
 )
 
-export default Todo
+export default onlyUpdateForKeys(['todo'])(Todo)
+// export default Todo

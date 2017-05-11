@@ -1,4 +1,5 @@
 import React from 'react'
+// import { pure } from 'recompose'
 
 const Link = ({ active, children, onClick }) => {
 	if (active) {

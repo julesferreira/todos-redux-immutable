@@ -13,8 +13,14 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const FilterLink = connect(
+	// null,
 	mapStateToProps,
-	mapDispatchToProps
+	mapDispatchToProps,
+	// null,
+	// {
+		// only call `mapStateToProps` if `visibilityFilter` has changed
+		// areStatesEqual: (prev, next) => prev.visibilityFilter === next.visibilityFilter
+	// }
 )(Link)
 
 export default FilterLink

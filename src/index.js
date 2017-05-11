@@ -17,20 +17,20 @@ render(
 )
 
 window.benchmark = (count) => {
-	// Perf.start()
-	const t1 = performance.now()
+	Perf.start()
+	// const t1 = performance.now()
 	for (let i = 0; i < count; i++) {
 		store.dispatch(actions.addTodo('test'))
 	}
 	for (let i = 0; i < count; i += 2) {
 		store.dispatch(actions.toggleTodo(i))
 	}
-	for (let i = 0; i < 1; i++) {
+	for (let i = 0; i < 2; i++) {
 		store.dispatch(actions.setVisibilityFilter('SHOW_ACTIVE'))
 		store.dispatch(actions.setVisibilityFilter('SHOW_COMPLETED'))
 		store.dispatch(actions.setVisibilityFilter('SHOW_ALL'))
 	}
-	return performance.now() - t1;
-	// Perf.stop()
-	// Perf.printWasted()
+	// return performance.now() - t1;
+	Perf.stop()
+	Perf.printWasted()
 }
