@@ -1,6 +1,6 @@
 # using Immutable.js to optimize react/redux applications
 
-react is _le awesome_ in conjuction with a flux pattern (a la redux). let's make it _le awesomer_ (read: silly fast, even with large datasets and rapid changes).
+react is _le awesome_ in conjunction with a flux pattern (a la redux). let's make it _le awesomer_ (read: silly fast, even with large datasets and rapid changes).
 
 we'll take the basic todos example from redux and look for easy optimizations with Immutable.js
 
@@ -34,7 +34,7 @@ window.benchmark = (count = 100) => {
 0 | "TodoList > Todo" | 61.38 | 150 | 10000
 1 | "Footer > Connect(Link)" | 6.6 | 3 | 453
 
-at a cound of **100** we've called `render` **10,453** more times than was needed. at **1,000** todos, that's.. a browser crash. **200**? **40,903** unproductive renders :o
+at a count of **100** we've called `render` **10,453** more times than was needed. at **1,000** todos, that's.. a browser crash. **200**? **40,903** unproductive renders :o
 
 ### convert state object into immutable structures
 
