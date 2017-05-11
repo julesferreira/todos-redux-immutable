@@ -34,9 +34,7 @@ window.benchmark = (count = 100) => {
 0 | "TodoList > Todo" | 61.38 | 150 | 10000
 1 | "Footer > Connect(Link)" | 6.6 | 3 | 453
 
-at a cound of **100** we've called `render` **10,453** more times than was needed.
-
-at **1,000** todos, that's.. a browser crash. **200**? **40,903** unproductive renders :o
+at a cound of **100** we've called `render` **10,453** more times than was needed. at **1,000** todos, that's.. a browser crash. **200**? **40,903** unproductive renders :o
 
 ### convert state object into immutable structures
 
@@ -76,6 +74,8 @@ Record (
 
 since our state is created and updated in the reducers we'll start there with our immutable conversion
 
+### update root reducer
+
 ```js
 // reducers/index.js
 
@@ -100,6 +100,26 @@ const todoApp = combineReducers({
 	InitialState
 )
 ```
+
+we made two notable changes in this file:
+1. the app state `InitialState` was defined as an immutable Record
+2. the `InitialState` class was passed into `combineReducers`
+
+### update child reducers
+
+since `visibilityFilter` only deals in strings, we'll leave as is. on to `todos`!
+
+```js
+// reducers/todos.js
+
+// individual todos stored as Record
+const TodoRecord = Record({
+	id: null,
+	text: '',
+	completed: false
+})
+```
+
 
 
 
