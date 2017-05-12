@@ -6,7 +6,7 @@ we'll take the basic todos example from redux and look for easy optimizations wi
 
 ## phase one: eliminate wasted renders
 
-let's create a baseline with some performance profiling. we'll create some todos, toggle half of them, and then click through the filter options
+let's create a baseline with some performance profiling. we'll create some todos, toggle half of them, and then click through the filter options.
 
 ```js
 import Perf from 'react-addons-perf'
@@ -54,7 +54,7 @@ so our current state has a shape like
 }
 ```
 
-we'll be converting our objects into Records and arrays into Lists
+we'll be converting our objects into Records and arrays into Lists.
 
 ```js
 Record (
@@ -70,11 +70,11 @@ Record (
 )
 ```
 
-## updating reducers
+### update :allthereducers:
 
-since our state is created and updated in the reducers we'll start there with our immutable conversion
+since our state is created and updated in the reducers we'll start there with our immutable conversion.
 
-### update root reducer
+#### update root reducer
 
 ```js
 // reducers/index.js
@@ -105,13 +105,13 @@ we made two notable changes in this file:
 1. the app state `InitialState` was defined as an immutable Record
 2. the `InitialState` class was passed into `combineReducers`
 
-### update child reducers
+#### update child reducers
 
 since `visibilityFilter` only deals in strings, we'll leave as is. on to `todos`!
 
 hmmmmmm, so the `todos` reducer takes the array of todos as state. any actions involving an element of that array is passed to the `todo` reducer. this nested reducer takes an individual todo object as state. now that we're converting our arrays and objects to Lists and Records, we'll need to update `todos` to work with Lists, and `todo` to work with Records.
 
-we'll need to update each action to use the new data structures. but for now, let's focus on the `'TOGGLE_TODO'` type
+we'll need to update each action to use the new data structures. but for now, let's focus on the `'TOGGLE_TODO'` type.
 
 ```js
 // reducers/todos.js
@@ -149,10 +149,50 @@ three items of note:
 2. the toggle reduction for `todos` remains unchanged (the List api is largely a superset of Array)
 3. in the `todo` reducer, we use List's `set` function to get a duplicate `TodoRecord` with a negated `completed` member (instead of building a new object by hand)
 
+### update components
 
+now our state tree is immutable, and our reducers know how to read and update it. next we'll need to update our connected react components so they can correctly parse our new structure.
 
+#### TodoList
 
+where `TodoList` previously expected an array, we're now giving it a List. no worries tho-our components only utilize the array in ways for which our List has an identical api (e.g. `todos.map`).
 
+we _will_, however, have to make an adjustment to our original mapper function:
+
+```js
+{todos.map(todo =>
+	<Todo
+		key={todo.id}
+		{...todo} // le trouble.
+		onClick={() => onTodoClick(todo.id)}
+	/>
+)}
+```
+
+since each `todo` is now a Record-which by its nature lacks a universally appropriate spread specification-we'll have to pass props a bit differently.
+
+```js
+{todos.map(todo =>
+	<Todo
+		key={todo.id}
+		onClick={() => onTodoClick(todo.id)}
+
+		// the most common pattern i see:
+		data={todo}
+
+		// the verbose method:
+		//text={todo.text}
+		//completed={todo.completed}
+
+		// the _let the mutations begin_ method:
+		//{...todo.toJS()}
+
+		// the _are you sure you wanna add the babel plugin and roll your own
+		// opinionated destructuring implementation?_ method:
+		//{...todo}
+	/>
+)}
+```
 
 
 ---
