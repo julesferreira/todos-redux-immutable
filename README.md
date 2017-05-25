@@ -194,6 +194,46 @@ since each `todo` is now a Record-which by its nature lacks a universally approp
 )}
 ```
 
+### React Redux is magic
+
+our todos app is once again behaving correctly. let's take another look at our wasted renders.
+
+#### `benchmark(100)`
+
+(index) | Owner > Component | Inclusive wasted time (ms) | Instance count | Render count
+--- | --- | --- | --- | ---
+0 | "TodoList > Todo" | 69.96 | 150 | 10000
+
+well looky there, **453** unproductive renders from _Footer > Connect(Link)_ have been skipped! for why?
+
+#### by default, the `connect` HOC from React Redux passes new props to the wrapped component when the result of `mergeProps` is **not** _shallowly equal_ to the previous result
+
+this means we can short-circuit renders of the wrapped component-when we know it won't change-by:
+
+- overriding the default comparison function, `areMergedPropsEqual`, to return false when we want children to render **and/or**
+- supplying an alternate implementation of `mergeProps` that ignores incoming state and props which we know won't affect the result of descendent renders
+
+this is grand. we can prune our props or bypass updates before our data ever hits a presentational component; however, most of the time this will be overkill as we have access to three higher-level hooks which allow us to inspect more specific slices of data and catch unproductive changes earlier:
+
+> * [`areStatesEqual`] *(Function)*: When pure, compares incoming store state to its previous value. Default value: `strictEqual (===)`
+> * [`areOwnPropsEqual`] *(Function)*: When pure, compares incoming props to its previous value. Default value: `shallowEqual`
+> * [`areStatePropsEqual`] *(Function)*: When pure, compares the result of `mapStateToProps` to its previous value. Default value: `shallowEqual`
+
+??note: the return values from `mapStateToProps` and `mapDispatchToProps`, as well as the direct props from the parent component, are used to compose the final set of props in `mergeProps`. this means we 
+
+- incoming state (e.g. state passed to `mapStateToProps`) is not _strictly equal_ to previous incoming state
+- incoming props (e.g. props passed to wrapped component from parent) are not _shallowly equal_ to previous incoming props
+- result of `mapStateToProps` is not _shallowly equal_ to previous result of `mapStateToProps`
+- result of `mergeProps` is not _shallowly equal_ to previous result of `mergeProps`
+
+incoming state changed, but Link was rendered same
+
+props changed?
+
+
+
+
+
 
 ---
 

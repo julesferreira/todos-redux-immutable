@@ -25,7 +25,7 @@ window.benchmark = (count) => {
 	for (let i = 0; i < count; i += 2) {
 		store.dispatch(actions.toggleTodo(i))
 	}
-	for (let i = 0; i < 2; i++) {
+	for (let i = 0; i < 1; i++) {
 		store.dispatch(actions.setVisibilityFilter('SHOW_ACTIVE'))
 		store.dispatch(actions.setVisibilityFilter('SHOW_COMPLETED'))
 		store.dispatch(actions.setVisibilityFilter('SHOW_ALL'))
