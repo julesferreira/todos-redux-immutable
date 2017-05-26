@@ -277,7 +277,33 @@ during render it maps over the `todos` List and creates a `Todo` for each TodoRe
 
 when is `TodoList` re-rendered? the default component behavior is to render on every prop/state change. so what happens when we have **100** TodoRecords in our List and we toggle one of them? our `todos` change and.. **100** `Todo`s are rendered, even tho _only **one** of them has changed_!
 
-`PureComponent` to the rescue.
+#### `PureComponent` to the rescue
+
+> `React.PureComponent` is exactly like `React.Component` but implements `shouldComponentUpdate()` with a shallow prop and state comparison.
+
+since the `todo` prop passed to each `Todo` is now immutable, we can make `Todo` a `PureComponent`; render will only be called when an individual TodoRecord has changed.
+
+```js
+class Todo extends React.PureComponent {
+	render() {
+		...
+	}
+}
+
+// alternately, if we wanted to maintain the functional/compositional nature of
+// our component, we could wrap it in an HOC that does the same shallow
+// comparison in `shouldComponentUpdate`
+//
+// e.g. something akin to Recompose's `pure`
+//
+//const Todo = ({ onClick, todo }) => (
+//...
+//)
+//
+//export default pure(Todo)
+```
+
+
 
 
 
@@ -285,7 +311,7 @@ when is `TodoList` re-rendered? the default component behavior is to render on e
 
 
 
-
+https://facebook.github.io/react/docs/react-api.html#react.purecomponent
 ---
 
 # Redux Todos Example
