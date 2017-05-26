@@ -221,62 +221,18 @@ this is grand. we can prune our props or bypass updates before our data ever hit
 
 so why did those **453** renders disappear? `areStatesEqual` + immutability. let's compare what's happening between the _state-as-object_ and _state-as-Record_ implementations:
 
-<table>
-	<tr>
-		<th></th>
-		<th>state-as-object</th>
-		<th>state-as-Record</th>
-	</tr>
-	<tr>
-		<td>1</td>
-		<td colspan="2">parent component is (re)rendered or store publishes update</td>
-	</tr>
-	<tr>
-		<td>2</td>
-		<td>state _object_ is passed to connector</td>
-		<td>state _Record_ is passed to connector</td>
-	</tr>
-	<tr>
-		<td>3</td>
-		<td colspan="2">connector calls `areStatesEqual` with passed in state</td>
-	</tr>
-	<tr>
-		<td>4</td>
-		<td>new object !== previous object</td>
-		<td>new Record === previous Record</td>
-	</tr>
-	<tr>
-		<td>5</td>
-		<td>connector calls `mapStateToProps` with passed in state</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>6</td>
-		<td>connector merges props and passes to wrapped component</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>7</td>
-		<td>wrapped component renders descendent tree</td>
-		<td></td>
-	</tr>
-</table>
+\# | state-as-object | state-as-Record
+--- | --- | ---
+1 | parent component is (re)rendered or store publishes non-productive update | parent component is (re)rendered or store publishes non-productive update
+2 | state **object** is passed to connector | state **Record** is passed to connector
+3 | connector calls `areStatesEqual` with passed in state | connector calls `areStatesEqual` with passed in state
+4 | new object !== previous object | new Record === previous Record
+5 | connector calls `mapStateToProps` with passed in state |
+6 | connector merges props and passes to wrapped component |
+7 | wrapped component renders descendent tree |
 
-
-
-
-??note: the return values from `mapStateToProps` and `mapDispatchToProps`, as well as the direct props from the parent component, are used to compose the final set of props in `mergeProps`. this means we 
-
-- incoming state (e.g. state passed to `mapStateToProps`) is not _strictly equal_ to previous incoming state
-- incoming props (e.g. props passed to wrapped component from parent) are not _shallowly equal_ to previous incoming props
-- result of `mapStateToProps` is not _shallowly equal_ to previous result of `mapStateToProps`
-- result of `mergeProps` is not _shallowly equal_ to previous result of `mergeProps`
-
-incoming state changed, but Link was rendered same
-
-props changed?
-
-
+### update other
+### results
 
 
 
