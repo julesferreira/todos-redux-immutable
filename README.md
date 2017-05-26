@@ -12,18 +12,18 @@ let's create a baseline with some performance profiling. we'll create some todos
 import Perf from 'react-addons-perf'
 
 window.benchmark = (count = 100) => {
-	Perf.start()
-	for (let i = 0; i < count; i++) {
-		store.dispatch(actions.addTodo('test'))
-	}
-	for (let i = 0; i < count; i += 2) {
-		store.dispatch(actions.toggleTodo(i))
-	}
-	store.dispatch(actions.setVisibilityFilter('SHOW_ACTIVE'))
-	store.dispatch(actions.setVisibilityFilter('SHOW_COMPLETED'))
-	store.dispatch(actions.setVisibilityFilter('SHOW_ALL'))
-	Perf.stop()
-	Perf.printWasted()
+  Perf.start()
+  for (let i = 0; i < count; i++) {
+    store.dispatch(actions.addTodo('test'))
+  }
+  for (let i = 0; i < count; i += 2) {
+    store.dispatch(actions.toggleTodo(i))
+  }
+  store.dispatch(actions.setVisibilityFilter('SHOW_ACTIVE'))
+  store.dispatch(actions.setVisibilityFilter('SHOW_COMPLETED'))
+  store.dispatch(actions.setVisibilityFilter('SHOW_ALL'))
+  Perf.stop()
+  Perf.printWasted()
 }
 ```
 
@@ -42,15 +42,15 @@ so our current state has a shape like
 
 ```js
 {
-	todos: [
-		{
-			id: int,
-			text: string,
-			completed: bool
-		},
-		...
-	],
-	visibilityFilter: string
+  todos: [
+    {
+      id: int,
+      text: string,
+      completed: bool
+    },
+    ...
+  ],
+  visibilityFilter: string
 }
 ```
 
@@ -58,15 +58,15 @@ we'll be converting our objects into Records and arrays into Lists.
 
 ```js
 Record (
-	todos: List(
-		Record(
-			id: int,
-			text: string,
-			completed: bool
-		),
-		...
-	),
-	visibilityFilter: string
+  todos: List(
+    Record(
+      id: int,
+      text: string,
+      completed: bool
+    ),
+    ...
+  ),
+  visibilityFilter: string
 )
 ```
 
@@ -87,17 +87,17 @@ import { Record, List } from 'immutable'
 
 // state stored as immutable Record composed of List and string
 const InitialState = Record({
-	todos: List(),
-	visibilityFilter: 'SHOW_ALL'
+  todos: List(),
+  visibilityFilter: 'SHOW_ALL'
 })
 
 // root reducer
 const todoApp = combineReducers({
-	todos,
-	visibilityFilter
+  todos,
+  visibilityFilter
 },
-	// pass initial state to root reducer
-	InitialState
+  // pass initial state to root reducer
+  InitialState
 )
 ```
 
@@ -118,30 +118,30 @@ we'll need to update each action to use the new data structures. but for now, le
 
 // individual todos stored as Records
 const TodoRecord = Record({
-	id: null,
-	text: '',
-	completed: false
+  id: null,
+  text: '',
+  completed: false
 })
 
 // reduces `todos` List from root reducer
 const todos = (state, action) => {
-	switch (action.type) {
-		case 'TOGGLE_TODO':
-			return state.map(t =>
-				todo(t, action)
-			)
-		...
+  switch (action.type) {
+    case 'TOGGLE_TODO':
+      return state.map(t =>
+        todo(t, action)
+      )
+    ...
 
 // nested reducer gets `TodoRecord` as state from `todos` (parent reducer)
 const todo = (state, action) => {
-	switch (action.type) {
-		case 'TOGGLE_TODO':
-			if (state.id !== action.id) {
-				// not the todo you're looking for..
-				return state
-			}
-			return state.set('completed', !state.completed)
-		...
+  switch (action.type) {
+    case 'TOGGLE_TODO':
+      if (state.id !== action.id) {
+        // not the todo you're looking for..
+        return state
+      }
+      return state.set('completed', !state.completed)
+    ...
 ```
 
 three items of note:
@@ -161,11 +161,11 @@ we _will_, however, have to make an adjustment to our original mapper function:
 
 ```js
 {todos.map(todo =>
-	<Todo
-		key={todo.id}
-		{...todo} // le trouble.
-		onClick={() => onTodoClick(todo.id)}
-	/>
+  <Todo
+    key={todo.id}
+    {...todo} // le trouble.
+    onClick={() => onTodoClick(todo.id)}
+  />
 )}
 ```
 
@@ -173,24 +173,24 @@ since each `todo` is now a Record-which by its nature lacks a universally approp
 
 ```js
 {todos.map(todo =>
-	<Todo
-		key={todo.id}
-		onClick={() => onTodoClick(todo.id)}
+  <Todo
+    key={todo.id}
+    onClick={() => onTodoClick(todo.id)}
 
-		// the most common pattern i see:
-		data={todo}
+    // the most common pattern i see:
+    data={todo}
 
-		// the verbose method:
-		//text={todo.text}
-		//completed={todo.completed}
+    // the verbose method:
+    //text={todo.text}
+    //completed={todo.completed}
 
-		// the _let the mutations begin_ method:
-		//{...todo.toJS()}
+    // the _let the mutations begin_ method:
+    //{...todo.toJS()}
 
-		// the _are you sure you wanna add the babel plugin and roll your own
-		// opinionated destructuring implementation?_ method:
-		//{...todo}
-	/>
+    // the _are you sure you wanna add the babel plugin and roll your own
+    // opinionated destructuring implementation?_ method:
+    //{...todo}
+  />
 )}
 ```
 
@@ -245,26 +245,26 @@ let's dig into the real problem child: `Todo`.
 
 ```js
 const TodoList = ({ todos, onTodoClick }) => (
-	<ul>
-		{todos.map(todo =>
-			<Todo
-				key={todo.id}
-				todo={todo}
-				onClick={() => onTodoClick(todo.id)}
-			/>
-		)}
-	</ul>
+  <ul>
+    {todos.map(todo =>
+      <Todo
+        key={todo.id}
+        todo={todo}
+        onClick={() => onTodoClick(todo.id)}
+      />
+    )}
+  </ul>
 )
 
 const Todo = ({ onClick, todo }) => (
-	<li
-		onClick={onClick}
-		style={{
-			textDecoration: todo.completed ? 'line-through' : 'none'
-		}}
-	>
-		{todo.text}
-	</li>
+  <li
+    onClick={onClick}
+    style={{
+      textDecoration: todo.completed ? 'line-through' : 'none'
+    }}
+  >
+    {todo.text}
+  </li>
 )
 ```
 
@@ -285,18 +285,18 @@ since the `todo` prop passed to each `Todo` is now immutable, we can make `Todo`
 
 ```js
 class Todo extends React.PureComponent {
-	render() {
-		return (
-			<li
-				onClick={this.props.onClick}
-				style={{
-					textDecoration: this.props.todo.completed ? 'line-through' : 'none'
-				}}
-			>
-				{this.props.todo.text}
-			</li>
-		)
-	}
+  render() {
+    return (
+      <li
+        onClick={this.props.onClick}
+        style={{
+          textDecoration: this.props.todo.completed ? 'line-through' : 'none'
+        }}
+      >
+        {this.props.todo.text}
+      </li>
+    )
+  }
 }
 
 // alternately, if we wanted to maintain the functional/compositional nature of
@@ -326,7 +326,7 @@ onClick={() => this.props.onClick(this.props.todo.id)}
 // alternately, we could ignore the `onClick` prop and implement
 // `shouldComponentUpdate` with a strict comparison of `todo`
 //shouldComponentUpdate(nextProps) {
-//	return this.props.todo !== nextProps.todo
+//  return this.props.todo !== nextProps.todo
 //}
 
 // or following the functional paradigm, use an HOC like Recompose's
