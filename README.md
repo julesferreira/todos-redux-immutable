@@ -316,16 +316,25 @@ class Todo extends React.PureComponent {
 
 we still have **10,000** too many renders. hmmmm.. we know our TodoRecord is safe for shallow comparison, and we're only passing one other prop: `onClick`. ahhhhh, the function is recreated each render and will never pass a shallow comparison. let's push the function creation into the `Todo` component.
 
-```diff
+```js
 // TodoList
-- onClick={() => onTodoClick(todo.id)}
 + onClick={onTodoClick}
 
 // Todo
-- onClick={this.props.onClick}
 + onClick={() => this.props.onClick(this.props.todo.id)}
+
+// alternately, we could ignore the `onClick` prop and implement
+// `shouldComponentUpdate` with a strict comparison of `todo`
+//shouldComponentUpdate(nextProps) {
+//	return this.props.todo !== nextProps.todo
+//}
+
+// or following the functional paradigm, use an HOC like Recompose's
+// `onlyUpdateForKeys`
+//export default onlyUpdateForKeys(['todo'])(Todo)
 ```
 
+#### `benchmark(100)`
 
 
 ### results
