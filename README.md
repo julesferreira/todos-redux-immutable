@@ -231,7 +231,53 @@ so why did those **453** renders disappear? `areStatesEqual` + immutability. let
 6 | connector merges props and passes to wrapped component |
 7 | wrapped component renders descendent tree |
 
-### update other
+:success:... :kinda:... five percent drop in unproductive renders isn't _bad_...
+
+### make `Todo` pure
+
+let's dig into the real problem child: `Todo`.
+
+(index) | Owner > Component | Inclusive wasted time (ms) | Instance count | Render count
+--- | --- | --- | --- | ---
+0 | "TodoList > Todo" | 69.96 | 150 | 10000
+
+**10,000** unnessesary renders! how the why? let's look at `TodoList` and `Todo` to figure out what's going on.
+
+```js
+const TodoList = ({ todos, onTodoClick }) => (
+	<ul>
+		{todos.map(todo =>
+			<Todo
+				key={todo.id}
+				todo={todo}
+				onClick={() => onTodoClick(todo.id)}
+			/>
+		)}
+	</ul>
+)
+
+const Todo = ({ onClick, todo }) => (
+	<li
+		onClick={onClick}
+		style={{
+			textDecoration: todo.completed ? 'line-through' : 'none'
+		}}
+	>
+		{todo.text}
+	</li>
+)
+```
+
+hmmmmm, so `TodoList` takes two props: 
+
+1. `todos`, a List of visible TodoRecords **and**
+2. `onTodoClick`, a function that dispatches the `toggleTodo` action
+
+during render it maps over the `todos` List and creates a `Todo` for each TodoRecord. each `Todo` is responsible for displaying its decorated `text` and issuing `toggleTodo` on click. this seems reasonable.. so why are we rendering the _crud_ out of `Todo`s?
+
+when is `TodoList` re-rendered? the default component behavior is to render on every prop/state change. so what happens when we have *100* TodoRecords in our List?
+
+
 ### results
 
 
