@@ -17,8 +17,8 @@ render(
 )
 
 window.benchmark = (count) => {
-	Perf.start()
-	// const t1 = performance.now()
+	// Perf.start()
+	const t1 = performance.now()
 	for (let i = 0; i < count; i++) {
 		store.dispatch(actions.addTodo('test'))
 	}
@@ -30,7 +30,7 @@ window.benchmark = (count) => {
 		store.dispatch(actions.setVisibilityFilter('SHOW_COMPLETED'))
 		store.dispatch(actions.setVisibilityFilter('SHOW_ALL'))
 	}
-	// return performance.now() - t1;
-	Perf.stop()
-	Perf.printWasted()
+	return performance.now() - t1;
+	// Perf.stop()
+	// Perf.printWasted()
 }
