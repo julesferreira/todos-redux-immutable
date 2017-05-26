@@ -7,7 +7,7 @@ const TodoList = ({ todos, onTodoClick }) => (
 			<Todo
 				key={todo.id}
 				todo={todo}
-				onClick={() => onTodoClick(todo.id)}
+				onClick={onTodoClick}
 			/>
 		)}
 	</ul>
