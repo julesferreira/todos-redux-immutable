@@ -219,6 +219,52 @@ this is grand. we can prune our props or bypass updates before our data ever hit
 > * [`areOwnPropsEqual`] *(Function)*: When pure, compares incoming props to its previous value. Default value: `shallowEqual`
 > * [`areStatePropsEqual`] *(Function)*: When pure, compares the result of `mapStateToProps` to its previous value. Default value: `shallowEqual`
 
+so why did those **453** renders disappear? `areStatesEqual` + immutability. let's compare what's happening between the _state-as-object_ and _state-as-Record_ implementations:
+
+<table>
+	<tr>
+		<th></th>
+		<th>state-as-object</th>
+		<th>state-as-Record</th>
+	</tr>
+	<tr>
+		<td>1</td>
+		<td colspan="2">parent component is (re)rendered or store publishes update</td>
+	</tr>
+	<tr>
+		<td>2</td>
+		<td>state _object_ is passed to connector</td>
+		<td>state _Record_ is passed to connector</td>
+	</tr>
+	<tr>
+		<td>3</td>
+		<td colspan="2">connector calls `areStatesEqual` with passed in state</td>
+	</tr>
+	<tr>
+		<td>4</td>
+		<td>new object !== previous object</td>
+		<td>new Record === previous Record</td>
+	</tr>
+	<tr>
+		<td>5</td>
+		<td>connector calls `mapStateToProps` with passed in state</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>6</td>
+		<td>connector merges props and passes to wrapped component</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>7</td>
+		<td>wrapped component renders descendent tree</td>
+		<td></td>
+	</tr>
+</table>
+
+
+
+
 ??note: the return values from `mapStateToProps` and `mapDispatchToProps`, as well as the direct props from the parent component, are used to compose the final set of props in `mergeProps`. this means we 
 
 - incoming state (e.g. state passed to `mapStateToProps`) is not _strictly equal_ to previous incoming state
