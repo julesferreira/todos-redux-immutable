@@ -275,7 +275,10 @@ hmmmmm, so `TodoList` takes two props:
 
 during render it maps over the `todos` List and creates a `Todo` for each TodoRecord. each `Todo` is responsible for displaying its decorated `text` and issuing `toggleTodo` on click. this seems reasonable.. so why are we rendering the _crud_ out of `Todo`s?
 
-when is `TodoList` re-rendered? the default component behavior is to render on every prop/state change. so what happens when we have *100* TodoRecords in our List?
+when is `TodoList` re-rendered? the default component behavior is to render on every prop/state change. so what happens when we have **100** TodoRecords in our List and we toggle one of them? our `todos` change and.. **100** `Todo`s are rendered, even tho _only **one** of them has changed_!
+
+`PureComponent` to the rescue.
+
 
 
 ### results
