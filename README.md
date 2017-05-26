@@ -318,10 +318,10 @@ we still have **10,000** too many renders. hmmmm.. we know our TodoRecord is saf
 
 ```js
 // TodoList
-+ onClick={onTodoClick}
+onClick={onTodoClick}
 
 // Todo
-+ onClick={() => this.props.onClick(this.props.todo.id)}
+onClick={() => this.props.onClick(this.props.todo.id)}
 
 // alternately, we could ignore the `onClick` prop and implement
 // `shouldComponentUpdate` with a strict comparison of `todo`
@@ -336,12 +336,18 @@ we still have **10,000** too many renders. hmmmm.. we know our TodoRecord is saf
 
 #### `benchmark(100)`
 
+zero wasted renders! what does that mean performance-wise? let's capture some statistically-irresponsible execution times with production builds.
 
-### results
+todos | original (ms) | immutable (ms) | ~% improvement
+--- | --- | --- | ---
+100 | 156 | 149 | **5**
+200 | 368 | 286 | **29**
+500 | 1753 | 1001 | **75**
+1000 | 6743 | 3599 | **87**
+2000 | 27069 | 14190 | **90**
+3000 | 64313 | 34198 | **88**
 
 
-
-https://facebook.github.io/react/docs/react-api.html#react.purecomponent
 ---
 
 # Redux Todos Example
