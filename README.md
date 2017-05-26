@@ -286,7 +286,16 @@ since the `todo` prop passed to each `Todo` is now immutable, we can make `Todo`
 ```js
 class Todo extends React.PureComponent {
 	render() {
-		...
+		return (
+			<li
+				onClick={this.props.onClick}
+				style={{
+					textDecoration: this.props.todo.completed ? 'line-through' : 'none'
+				}}
+			>
+				{this.props.todo.text}
+			</li>
+		)
 	}
 }
 
@@ -303,7 +312,19 @@ class Todo extends React.PureComponent {
 //export default pure(Todo)
 ```
 
+:huzzah: now when we `benchmark(100)` we have zer... what?!?2kj04
 
+we still have **10,000** too many renders. hmmmm.. we know our TodoRecord is safe for shallow comparison, and we're only passing one other prop: `onClick`. ahhhhh, the function is recreated each render and will never pass a shallow comparison. let's push the function creation into the `Todo` component.
+
+```diff
+// TodoList
+- onClick={() => onTodoClick(todo.id)}
++ onClick={onTodoClick}
+
+// Todo
+- onClick={this.props.onClick}
++ onClick={() => this.props.onClick(this.props.todo.id)}
+```
 
 
 
