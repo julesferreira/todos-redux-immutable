@@ -4,7 +4,7 @@ react is _le awesome_ in conjunction with a flux pattern (a la redux). let's mak
 
 we'll take the basic todos example from redux and look for easy optimizations with Immutable.js
 
-## phase one: eliminate wasted renders
+## eliminate wasted renders
 
 let's create a baseline with some performance profiling. we'll create some todos, toggle half of them, and then click through the filter options.
 
@@ -27,7 +27,7 @@ window.benchmark = (count = 100) => {
 }
 ```
 
-### `benchmark(100)`
+## `benchmark(100)`
 
 (index) | Owner > Component | Inclusive wasted time (ms) | Instance count | Render count
 --- | --- | --- | --- | ---
@@ -36,7 +36,7 @@ window.benchmark = (count = 100) => {
 
 at a count of **100** we've called `render` **10,453** more times than was needed. at **1,000** todos, that's.. a browser crash. **200**? **40,903** unproductive renders :o
 
-### convert state object into immutable structures
+## convert state object into immutable structures
 
 so our current state has a shape like
 
@@ -70,11 +70,11 @@ Record (
 )
 ```
 
-### update :allthereducers:
+## update :allthereducers:
 
 since our state is created and updated in the reducers we'll start there with our immutable conversion.
 
-#### update root reducer
+### update root reducer
 
 ```js
 // reducers/index.js
@@ -105,7 +105,7 @@ we made two notable changes in this file:
 1. the app state `InitialState` was defined as an immutable Record
 2. the `InitialState` class was passed into `combineReducers`
 
-#### update child reducers
+### update child reducers
 
 since `visibilityFilter` only deals in strings, we'll leave as is. on to `todos`!
 
@@ -149,11 +149,11 @@ three items of note:
 2. the toggle reduction for `todos` remains unchanged (the List api is largely a superset of Array)
 3. in the `todo` reducer, we use List's `set` function to get a duplicate `TodoRecord` with a negated `completed` member (instead of building a new object by hand)
 
-### update components
+## update components
 
 now our state tree is immutable, and our reducers know how to read and update it. next we'll need to update our connected react components so they can correctly parse our new structure.
 
-#### TodoList
+### TodoList
 
 where `TodoList` previously expected an array, we're now giving it a List. no worries tho-our components only utilize the array in ways for which our List has an identical api (e.g. `todos.map`).
 
@@ -194,11 +194,11 @@ since each `todo` is now a Record-which by its nature lacks a universally approp
 )}
 ```
 
-### React Redux is magic
+## connector optimization or: React Redux is magic
 
 our todos app is once again behaving correctly. let's take another look at our wasted renders.
 
-#### `benchmark(100)`
+### `benchmark(100)`
 
 (index) | Owner > Component | Inclusive wasted time (ms) | Instance count | Render count
 --- | --- | --- | --- | ---
@@ -206,7 +206,7 @@ our todos app is once again behaving correctly. let's take another look at our w
 
 well looky there, **453** unproductive renders from _Footer > Connect(Link)_ have been skipped! for why?
 
-#### by default, the `connect` HOC from React Redux passes new props to the wrapped component when the result of `mergeProps` is **not** _shallowly equal_ to the previous result
+### by default, the `connect` HOC from React Redux passes new props to the wrapped component when the result of `mergeProps` is **not** _shallowly equal_ to the previous result
 
 this means we can short-circuit renders of the wrapped component-when we know it won't change-by:
 
@@ -233,7 +233,7 @@ so why did those **453** renders disappear? `areStatesEqual` + immutability. let
 
 :success:... :kinda:... five percent drop in unproductive renders isn't _bad_...
 
-### make `Todo` pure
+## make `Todo` pure
 
 let's dig into the real problem child: `Todo`.
 
@@ -277,7 +277,7 @@ during render it maps over the `todos` List and creates a `Todo` for each TodoRe
 
 when is `TodoList` re-rendered? the default component behavior is to render on every prop/state change. so what happens when we have **100** TodoRecords in our List and we toggle one of them? our `todos` change and.. **100** `Todo`s are rendered, even tho _only **one** of them has changed_!
 
-#### `PureComponent` to the rescue
+### `PureComponent` to the rescue
 
 > `React.PureComponent` is exactly like `React.Component` but implements `shouldComponentUpdate()` with a shallow prop and state comparison.
 
@@ -334,9 +334,9 @@ onClick={() => this.props.onClick(this.props.todo.id)}
 //export default onlyUpdateForKeys(['todo'])(Todo)
 ```
 
-#### `benchmark(100)`
+## `benchmark(100)`
 
-zero wasted renders! what does that mean performance-wise? let's capture some statistically-irresponsible execution times with production builds.
+zero wasted renders! what does that mean performance-wise? let's capture some statistically-irresponsible execution times with production builds:
 
 todos | original (ms) | immutable (ms) | ~% improvement
 --- | --- | --- | ---
@@ -347,42 +347,21 @@ todos | original (ms) | immutable (ms) | ~% improvement
 2000 | 27069 | 14190 | **90**
 3000 | 64313 | 34198 | **88**
 
+the results of our immutable adjustment becomes more pronounced as the count of todos grows. once we move beyond **500** items we see performance improvements in excess of **80%**.
 
----
+:partyparrot:
 
-# Redux Todos Example
+## so, what do we optimize next?
 
-This project template was built with [Create React App](https://github.com/facebookincubator/create-react-app), which provides a simple way to start React projects with no build configuration needed.
+we've walked through two basic optimizations that are _best friends_ with Immutable.js; connector and component short-circuits. so, what's next? we'd probably do well to subscribe to Knuth's suggestion that:
 
-Projects built with Create-React-App include support for ES6 syntax, as well as several unofficial / not-yet-final forms of Javascript syntax such as Class Properties and JSX.  See the list of [language features and polyfills supported by Create-React-App](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#supported-language-features-and-polyfills) for more information.
+> We _should_ forget about small efficiencies, say about 97% of the time: **premature optimization is the root of all evil**. Yet we should not pass up our opportunities in that critical 3%."
 
-## Available Scripts
+these optimizations are simple and impactfull; they may even fall under the category of _the critical 3%_.. but quite often they are unnessesary. for example: this trivial todos app we just optimized. 80% improvement is awesome, but chances seem low that a user would create and interact with **1,000** todos in under six seconds (the pace they'd have to set to _really_ feel the benefit).
 
-In the project directory, you can run:
+**so maybe the better question, then, is _"when do we optimize next?"_**
 
-### `npm start`
-
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+**when we need it.**
+###### keep the profilers close.. watch for the jank..
+<sub><sub>that said, someone should really memoize that ugly selector.. i'm looking at you `getVisibleTodos`!</sub></sub>
 
