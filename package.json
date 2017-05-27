@@ -3,9 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "devDependencies": {
-    "enzyme": "^2.4.1",
-    "react-addons-perf": "^15.4.2",
-    "react-addons-test-utils": "^15.3.0",
     "autoprefixer": "6.7.2",
     "babel-core": "6.22.1",
     "babel-eslint": "7.1.1",
@@ -37,6 +34,8 @@
     "object-assign": "4.1.1",
     "postcss-loader": "1.2.2",
     "promise": "7.1.1",
+    "react-addons-perf": "^15.4.2",
+    "react-addons-test-utils": "^15.3.0",
     "react-dev-utils": "^0.5.2",
     "style-loader": "0.13.1",
     "url-loader": "0.5.7",
@@ -46,11 +45,13 @@
     "whatwg-fetch": "2.0.2"
   },
   "dependencies": {
+    "immutable": "^3.8.1",
     "prop-types": "^15.5.8",
     "react": "^15.5.0",
     "react-dom": "^15.5.0",
-    "react-redux": "^4.4.5",
-    "redux": "^3.5.2"
+    "react-redux": "^5.0.4",
+    "redux": "^3.5.2",
+    "redux-immutable": "^4.0.0"
   },
   "scripts": {
     "start": "node scripts/start.js",
